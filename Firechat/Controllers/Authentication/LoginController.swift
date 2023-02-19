@@ -7,9 +7,15 @@
 
 import UIKit
 
+protocol AuthenticateControllerProtocol{
+    func checkAuthenticateStatus()
+}
+
 class LoginController:UIViewController{
     
     //MARK: - Properties
+    
+    private var loginViewModel = LoginViewModel()
     
     private let logoImage : UIImageView = {
         let imageView = UIImageView()
@@ -57,6 +63,8 @@ class LoginController:UIViewController{
         button.setTitle("Log In", for: .normal)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
         button.layer.cornerRadius = 5
+        button.isEnabled = false
+        button.alpha = 0.7
         button.setTitleColor(.white, for: .normal)
         button.addTarget(self , action: #selector(handleLogin), for: .touchUpInside)
         return button
@@ -96,23 +104,17 @@ class LoginController:UIViewController{
         view.addSubview(dontHaveAccountButton)
         dontHaveAccountButton.anchor(left: view.safeAreaLayoutGuide.leftAnchor, bottom: view.safeAreaLayoutGuide.bottomAnchor, right: view.safeAreaLayoutGuide.rightAnchor, paddingBottom: 8)
         
-
+        emailTextField.addTarget(self, action: #selector(handleTextChange), for: .editingChanged)
+        passwordTextField.addTarget(self, action: #selector(handleTextChange), for: .editingChanged)
         
     }
     
-    func configureGradientLayer(){
-        let gradient = CAGradientLayer()
-        gradient.colors = [UIColor.mainPurple.cgColor, UIColor.navyBlue.cgColor]
-        gradient.locations = [0, 1]
-        gradient.borderColor = UIColor.red.cgColor
-        view.layer.addSublayer(gradient)
-        gradient.frame = view.frame
-    }
 
 //MARK: - Selectors
     
     @objc func handleSignup(){
-        print("DEBUG: HANDLE SIGNUP")
+        let signupController = SignupController()
+        navigationController?.pushViewController(signupController, animated: true)
     }
     
     @objc func handleLogin(){
@@ -122,4 +124,29 @@ class LoginController:UIViewController{
     @objc func togglePassword(){
         passwordTextField.isSecureTextEntry.toggle()
     }
+    
+    @objc func handleTextChange(sender:UITextField){
+        if sender == emailTextField{
+            loginViewModel.email = sender.text
+        } else {
+            loginViewModel.password = sender.text
+        }
+        checkAuthenticateStatus()
+    }
 }
+//MARK: - Authenticate Controller Protocol
+
+extension LoginController:AuthenticateControllerProtocol{
+    
+    func checkAuthenticateStatus() {
+        if loginViewModel.formIsValid{
+            loginButton.isEnabled = true
+            loginButton.alpha = 1
+        } else {
+            loginButton.isEnabled = false
+            loginButton.alpha = 0.7
+        }
+    }
+}
+
+

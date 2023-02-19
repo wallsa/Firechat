@@ -19,6 +19,8 @@
 		E120F135299EC8B5004DF9C6 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = E120F134299EC8B5004DF9C6 /* Constants.swift */; };
 		E120F13829A19791004DF9C6 /* LoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E120F13729A19791004DF9C6 /* LoginController.swift */; };
 		E120F13A29A1B113004DF9C6 /* SignupController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E120F13929A1B113004DF9C6 /* SignupController.swift */; };
+		E120F13C29A2D791004DF9C6 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E120F13B29A2D791004DF9C6 /* LoginViewModel.swift */; };
+		E120F13E29A2DE79004DF9C6 /* SignupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E120F13D29A2DE79004DF9C6 /* SignupViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +38,8 @@
 		E120F134299EC8B5004DF9C6 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		E120F13729A19791004DF9C6 /* LoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginController.swift; sourceTree = "<group>"; };
 		E120F13929A1B113004DF9C6 /* SignupController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignupController.swift; sourceTree = "<group>"; };
+		E120F13B29A2D791004DF9C6 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
+		E120F13D29A2DE79004DF9C6 /* SignupViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignupViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,6 +128,8 @@
 		E120F128299EBD7A004DF9C6 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				E120F13B29A2D791004DF9C6 /* LoginViewModel.swift */,
+				E120F13D29A2DE79004DF9C6 /* SignupViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -221,9 +227,11 @@
 			files = (
 				E120F12F299EC5B4004DF9C6 /* UIExtensions.swift in Sources */,
 				E120F110299EBC99004DF9C6 /* AppDelegate.swift in Sources */,
+				E120F13C29A2D791004DF9C6 /* LoginViewModel.swift in Sources */,
 				E120F112299EBC99004DF9C6 /* SceneDelegate.swift in Sources */,
 				E120F13A29A1B113004DF9C6 /* SignupController.swift in Sources */,
 				E120F12B299EBDEE004DF9C6 /* ChatController.swift in Sources */,
+				E120F13E29A2DE79004DF9C6 /* SignupViewModel.swift in Sources */,
 				E120F13829A19791004DF9C6 /* LoginController.swift in Sources */,
 				E120F12D299EC57D004DF9C6 /* ColorExtension.swift in Sources */,
 				E120F131299EC636004DF9C6 /* ConstrainsExtension.swift in Sources */,

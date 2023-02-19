@@ -86,5 +86,17 @@ extension UIView{
         view.anchor(height: 50)
         return view
     }
+    
+}
+
+extension UIViewController{
+    func configureGradientLayer(){
+        let gradient = CAGradientLayer()
+        gradient.colors = [UIColor.mainPurple.cgColor, UIColor.navyBlue.cgColor]
+        gradient.locations = [0, 1]
+        gradient.borderColor = UIColor.red.cgColor
+        view.layer.addSublayer(gradient)
+        gradient.frame = view.frame
+    }
 }
 
