@@ -6,7 +6,18 @@
 //
 
 import Foundation
+import Firebase
 
+//MARK: - Database References
+
+let STORAGE_REF = Storage.storage().reference()
+let STORAGE_PROFILE_IMAGES = STORAGE_REF.child("profile_images")
+
+let DATA_REF = Firestore.firestore()
+let REF_USERS = DATA_REF.collection("users")
+
+
+//MARK: - Images
 struct Constants {
     static let personImage = "person.circle.fill"
     static let messageBaloon = "message"
