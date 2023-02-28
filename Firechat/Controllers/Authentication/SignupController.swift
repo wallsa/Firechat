@@ -71,7 +71,7 @@ class SignupController:UIViewController{
     private let signupButton : UIButton = {
         let button = UIButton(type: .system)
         button.backgroundColor = .mainPurple
-        button.setTitle("Log In", for: .normal)
+        button.setTitle("Signup", for: .normal)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
         button.layer.cornerRadius = 5
         button.isEnabled = false
@@ -100,18 +100,7 @@ class SignupController:UIViewController{
 
 //MARK: - API
     
-    func createUser(withCredentials credentials:AuthCredentials){
-        AuthService.shared.registerUser(withCredentials: credentials) { databaseError in
-            if let error = databaseError{
-                print("DEBUG: Error in database try again later... \(error.localizedDescription)")
-            }
-        } authCompletion: { authError in
-            if let error = authError{
-                print("DEBUG: Error in authentication try again later... \(error.localizedDescription)")
-            }
-        }
-        
-    }
+    
 
 //MARK: - Helper Functions
     
@@ -165,13 +154,26 @@ class SignupController:UIViewController{
             present(alert, animated: true)
             return
         }
+        showHUD(true, with: "Registering your user")
         
         let credentials = AuthCredentials(email: email, fullname: fullname, username: username, password: password, profileImage: image)
         
-        createUser(withCredentials: credentials)
-        
-        
-        
+        AuthService.shared.registerUser(withCredentials: credentials) { databaseError in
+            if let error = databaseError{
+                self.showHUD(false)
+                print("DEBUG: Error in database try again later... \(error.localizedDescription)")
+                return
+            }
+        } authCompletion: { authError in
+            if let error = authError{
+                self.showHUD(false)
+                print("DEBUG: Error in authentication try again later... \(error.localizedDescription)")
+                return
+            }
+            print("DEBUG: Sucess register user")
+        }
+        self.showHUD(false)
+        self.dismiss(animated: true)
     }
     
     @objc func handleAlreadyHaveAccount(){

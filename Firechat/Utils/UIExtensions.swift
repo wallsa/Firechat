@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import JGProgressHUD
 
 //MARK: - Text Field
 
@@ -88,8 +89,10 @@ extension UIView{
     }
     
 }
+//MARK: - View Controller
 
 extension UIViewController{
+
     func configureGradientLayer(){
         let gradient = CAGradientLayer()
         gradient.colors = [UIColor.mainPurple.cgColor, UIColor.navyBlue.cgColor]
@@ -98,5 +101,34 @@ extension UIViewController{
         view.layer.addSublayer(gradient)
         gradient.frame = view.frame
     }
+    
+  
+    static let HUD = JGProgressHUD(style: .dark)
+    
+    func showHUD(_ show:Bool ,with text: String? = "Loading") {
+        view.endEditing(true)
+        UIViewController.HUD.textLabel.text = text
+        
+        show ? UIViewController.HUD.show(in: view) : UIViewController.HUD.dismiss()
+    }
+    
+    
+    func configureNavigationBar(withTitle title:String, color:UIColor, largeTitle:Bool){
+        let appearance = UINavigationBarAppearance()
+        appearance.largeTitleTextAttributes = [.foregroundColor : UIColor.white]
+        appearance.configureWithOpaqueBackground()
+        
+        appearance.backgroundColor = color
+        navigationItem.title = title
+        navigationController?.navigationBar.prefersLargeTitles = largeTitle
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.compactAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        
+        navigationController?.navigationBar.overrideUserInterfaceStyle = .dark
+    }
+    
+    
+    
 }
 

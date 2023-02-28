@@ -26,5 +26,6 @@ struct Constants {
     static let eye = "eye.fill"
     static let person = "person"
     static let personAdd = "plus.circle"
+    static let plus = "plus"
     
 }

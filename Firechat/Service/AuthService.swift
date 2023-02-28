@@ -46,10 +46,9 @@ class AuthService{
         imageStorageRef.putData(imageData, metadata: nil) { meta , error  in
             imageStorageRef.downloadURL { url , error in
                 guard let profileImageUrl = url?.absoluteString else {return}
-                
-               
+                    
                     guard let uid = result?.user.uid else {return}
-                    let values = ["email" : email, "username" : username, "fullname" : fullname, "passwordHash" : password.hashValue, "profileImageUrl" : profileImageUrl] as [String:Any]
+                    let values = ["email" : email, "username" : username, "fullname" : fullname, "uid" : uid, "profileImageUrl" : profileImageUrl] as [String:Any]
                     
                     
                     REF_USERS.document(uid).setData(values, completion: databaseCompletion)
