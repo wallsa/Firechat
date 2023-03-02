@@ -10,10 +10,13 @@ import Firebase
 
 private let reuseIdentifier = "ChatCell"
 
-class MultipleChatsController:UIViewController{
+class ConversationController:UIViewController{
 //MARK: - Properties
     
     private let tableView = UITableView()
+    
+    private var conversations = [Conversation]()
+    private var conversationsDictionary = [String:Conversation]()
     
     private let newMessageButton : UIButton = {
         let button = UIButton(type: .system)
@@ -30,13 +33,27 @@ class MultipleChatsController:UIViewController{
         super.viewDidLoad()
         checkUser()
         configureUI()
+        fetchConversations()
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         configureNavigationBar(withTitle: "Messages", color: .navyBlue, largeTitle: true)
     }
 
 //MARK: - API
+/*Aqui para nao termos duplicatas nas conversas, utilizamos o apoio de um dicionario, que vai ter o id da pessoa a qual estamos conversando no key e o value sera o id da conversa, quando o nosso listener é chamado novamente, como nao é possivel ter duas keys, é alterado somente o value e assim apos isso, construimos nossa conversations com os values do dictionary*/
+    func fetchConversations(){
+        MessageService.fetchConversations { conversations in
+            conversations.forEach { conversation in
+                let message = conversation.message
+                self.conversationsDictionary[message.toID] = conversation
+            }
+            self.conversations = Array(self.conversationsDictionary.values)
+            self.tableView.reloadData()
+            print("DEBUG: \(self.conversationsDictionary)")
+        }
+    }
     
     func checkUser(){
         if Auth.auth().currentUser?.uid == nil {
@@ -82,14 +99,13 @@ class MultipleChatsController:UIViewController{
         
     }
    
-    
     func configureTableView(){
         tableView.backgroundColor = .white
         tableView.rowHeight = 80
         view.addSubview(tableView)
         tableView.frame = view.frame
         tableView.tableFooterView = UIView()
-        tableView.register(UITableViewCell.self , forCellReuseIdentifier: reuseIdentifier)
+        tableView.register(ConversationCell.self , forCellReuseIdentifier: reuseIdentifier)
         tableView.delegate = self
         tableView.dataSource = self
     }
@@ -112,31 +128,32 @@ class MultipleChatsController:UIViewController{
 }
 //MARK: - TableView DataSource
 
-extension MultipleChatsController:UITableViewDataSource{
+extension ConversationController:UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 2
+        return conversations.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath)
-        var content = cell.defaultContentConfiguration()
-        content.text = "Test Cell"
-        cell.contentConfiguration = content
+        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! ConversationCell
+        cell.conversation = conversations[indexPath.row]
         return cell
     }
 }
 //MARK: - TableView Delegate
 
-extension MultipleChatsController:UITableViewDelegate{
+extension ConversationController:UITableViewDelegate{
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        let user = conversations[indexPath.row].user
+        let conversation = SingleChatController(user: user)
+        navigationController?.pushViewController(conversation, animated: true)
     }
 }
 
 //MARK: - NewMessageController Delegate
 
-extension MultipleChatsController:NewMessageControllerDelegate{
+extension ConversationController:NewMessageControllerDelegate{
     func controller(_ controller: NewMessageController, wantsToChatWith user: User) {
         controller.dismiss(animated: true)
         let conversation = SingleChatController(user: user)

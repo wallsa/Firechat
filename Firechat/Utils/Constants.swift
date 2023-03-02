@@ -15,6 +15,7 @@ let STORAGE_PROFILE_IMAGES = STORAGE_REF.child("profile_images")
 
 let DATA_REF = Firestore.firestore()
 let REF_USERS = DATA_REF.collection("users")
+let REF_MESSAGES = DATA_REF.collection("messages")
 
 
 //MARK: - Images

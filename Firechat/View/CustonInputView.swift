@@ -8,7 +8,7 @@
 import UIKit
 
 protocol CustonInputViewDelegate:AnyObject{
-    func handleSendMessage(_ text:String)
+    func handleSendMessage(_ inputView:CustonInputView,_ text:String)
 }
 
 class CustonInputView:UIView{
@@ -79,15 +79,17 @@ class CustonInputView:UIView{
         placeholderLabel.centerY(inview: inputMessageText, leftAnchor: inputMessageText.leftAnchor, paddinLeft: 4)
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleHidePlaceholder), name: UITextView.textDidChangeNotification, object: nil)
-        
+    }
+    
+    func clearInput(){
+        inputMessageText.text = nil
+        placeholderLabel.isHidden = false
     }
 //MARK: - Selectors
     
     @objc func handleSendMessage(){
         guard !inputMessageText.text.isEmpty else {return}
-        delegate?.handleSendMessage(inputMessageText.text)
-        inputMessageText.text = nil
-        placeholderLabel.isHidden = false
+        delegate?.handleSendMessage(self, inputMessageText.text)
     }
     
     @objc func handleHidePlaceholder(){

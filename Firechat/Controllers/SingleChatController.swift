@@ -17,9 +17,10 @@ class SingleChatController:UICollectionViewController{
     private var messages = [Message]()
     
     var isFromCurrentUser:Bool = false
+    let custonViewHeight = CGFloat(integerLiteral: 50)
     
     private lazy var customInputView : CustonInputView = {
-        let custonView = CustonInputView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 50))
+        let custonView = CustonInputView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: custonViewHeight))
         custonView.delegate = self
         return custonView
     }()
@@ -39,6 +40,7 @@ class SingleChatController:UICollectionViewController{
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionView()
+        fetchMessages()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -55,13 +57,23 @@ class SingleChatController:UICollectionViewController{
     
     //MARK: - API
     
+    func fetchMessages(){
+        MessageService.fetchMessages(forUser: user) { messages in
+            self.messages = messages
+            self.collectionView.reloadData()
+            self.collectionView.scrollToItem(at: [0, self.messages.count - 1], at: .bottom, animated: true)
+        }
+    }
+    
     //MARK: - Helper Functions
     
     func configureCollectionView(){
         collectionView.backgroundColor = .white
         collectionView.register(MessageCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-        
         collectionView.alwaysBounceVertical = true
+        //Fecha o teclado com a interação do usuario, e abaixo definimos um inset para a collection, 16px a mais do que a custonView
+        collectionView.keyboardDismissMode = .interactive
+        collectionView.contentInset.bottom = custonViewHeight + 16
     }
     
     //MARK: - Selectors
@@ -77,6 +89,7 @@ extension SingleChatController{
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! MessageCell
         cell.message = messages[indexPath.row]
+        cell.message?.user = user
         return cell
     
     }
@@ -84,7 +97,16 @@ extension SingleChatController{
 //MARK: - CollectionViewCell Custon Sizes
 extension SingleChatController:UICollectionViewDelegateFlowLayout{
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: view.frame.width, height: 50)
+        let frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 50)
+        let estimateSizeForCell = MessageCell(frame: frame)
+        
+        estimateSizeForCell.message = messages[indexPath.row]
+        estimateSizeForCell.layoutIfNeeded()
+        
+        let targetSize = CGSize(width: view.frame.width, height: 10000)
+        let estimateSize = estimateSizeForCell.systemLayoutSizeFitting(targetSize)
+        
+        return CGSize(width: view.frame.width, height: estimateSize.height)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
@@ -95,12 +117,13 @@ extension SingleChatController:UICollectionViewDelegateFlowLayout{
 //MARK: - CustonInputView Delegate
 
 extension SingleChatController:CustonInputViewDelegate{
-    func handleSendMessage(_ text: String) {
-        isFromCurrentUser.toggle()
-        let newMessage = Message(text: text, isFromCurrentUser: isFromCurrentUser)
-        messages.append(newMessage)
-        collectionView.reloadData()
-    }
-    
-    
+    func handleSendMessage(_ inputView: CustonInputView, _ text: String) {
+        inputView.clearInput()
+        MessageService.uploadMessage(text, to: user) { error in
+            if let error = error {
+                print("DEBUG: Error is \(error.localizedDescription)")
+                return
+            }
+        }
+    }  
 }

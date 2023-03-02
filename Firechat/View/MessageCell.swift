@@ -66,7 +66,7 @@ class MessageCell:UICollectionViewCell{
         profileImageView.anchor(left: leftAnchor, bottom: bottomAnchor, paddingLeft: 8, paddingBottom: -4)
         
         addSubview(bubbleContainer)
-        bubbleContainer.anchor(top: topAnchor)
+        bubbleContainer.anchor(top: topAnchor, bottom: bottomAnchor)
         bubbleContainer.widthAnchor.constraint(lessThanOrEqualToConstant: 250).isActive = true
         /*Aqui implementamos para view que forma a bolha do chat a constrain da esquerda e direita e abaixo na configuracao da celula,
          definimos com a ajuda da nossa viewModel qual constrain vai ser ativada */
@@ -90,6 +90,7 @@ class MessageCell:UICollectionViewCell{
         bubbleRightAnchor.isActive = viewModel.rightAnchorActive
         
         profileImageView.isHidden = viewModel.shouldHideProfileImage
+        profileImageView.sd_setImage(with: message.user?.profileImageURL)
     }
 
 //MARK: - Selectors

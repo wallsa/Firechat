@@ -25,4 +25,12 @@ class UserService{
             completion(users)
         }
     }
+    
+    static func fetchUser(withUid uid:String, completion:@escaping (User) -> ()){
+        REF_USERS.document(uid).getDocument { snapshot , error in
+            guard let dictionary = snapshot?.data() else {return}
+            let user = User(dataDictionary: dictionary)
+            completion(user)
+        }
+    }
 }
