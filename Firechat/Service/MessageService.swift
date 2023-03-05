@@ -39,16 +39,18 @@ struct MessageService{
     
     static func fetchConversations(completion:@escaping([Conversation]) -> ()){
         var conversations = [Conversation]()
+        
         guard let uid = Auth.auth().currentUser?.uid else {return}
         
         let query = REF_MESSAGES.document(uid).collection("recent-messages").order(by: "timestamp")
         
         query.addSnapshotListener { snapshot , error in
+            
             snapshot?.documentChanges.forEach({ change in
                 let dictionary = change.document.data()
                 let message = Message(dictionary: dictionary)
                 
-                UserService.fetchUser(withUid: message.toID) { user in
+                UserService.fetchUser(withUid: message.chatPartnerID) { user in
                     let conversation = Conversation(user: user, message: message)
                     conversations.append(conversation)
                     completion(conversations)

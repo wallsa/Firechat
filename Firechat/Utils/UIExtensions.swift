@@ -102,6 +102,7 @@ extension UIViewController{
         gradient.frame = view.frame
     }
     
+    
   
     static let HUD = JGProgressHUD(style: .dark)
     

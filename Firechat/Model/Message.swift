@@ -20,6 +20,10 @@ struct Message{
         return Auth.auth().currentUser?.uid == fromID ? true : false
     }
     
+    var chatPartnerID:String{
+        return Auth.auth().currentUser?.uid == fromID ? toID : fromID
+    }
+    
     init(dictionary:[String:Any]) {
         self.text = dictionary["text"] as? String ?? ""
         self.toID = dictionary["toID"] as? String ?? ""

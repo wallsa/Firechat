@@ -15,6 +15,8 @@ class ConversationController:UIViewController{
     
     private let tableView = UITableView()
     
+    private var user:User?
+    
     private var conversations = [Conversation]()
     private var conversationsDictionary = [String:Conversation]()
     
@@ -39,7 +41,17 @@ class ConversationController:UIViewController{
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         configureNavigationBar(withTitle: "Messages", color: .navyBlue, largeTitle: true)
+     
+       
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        checkUser()
+        configureUI()
+        fetchConversations()
+    }
+    
 
 //MARK: - API
 /*Aqui para nao termos duplicatas nas conversas, utilizamos o apoio de um dicionario, que vai ter o id da pessoa a qual estamos conversando no key e o value sera o id da conversa, quando o nosso listener é chamado novamente, como nao é possivel ter duas keys, é alterado somente o value e assim apos isso, construimos nossa conversations com os values do dictionary*/
@@ -47,11 +59,16 @@ class ConversationController:UIViewController{
         MessageService.fetchConversations { conversations in
             conversations.forEach { conversation in
                 let message = conversation.message
-                self.conversationsDictionary[message.toID] = conversation
+                self.conversationsDictionary[message.chatPartnerID] = conversation
             }
             self.conversations = Array(self.conversationsDictionary.values)
             self.tableView.reloadData()
-            print("DEBUG: \(self.conversationsDictionary)")
+        }
+    }
+    
+    func fetchUser(_ uid: String) {
+        UserService.fetchUser(withUid: uid) { user in
+            self.user = user
         }
     }
     
@@ -60,7 +77,8 @@ class ConversationController:UIViewController{
             print("DEBUG: User not connected, show loginCOntroller")
             presentLoginScreen()
         } else {
-            print("DEBUG: Configure UI for user\(Auth.auth().currentUser?.uid)")
+            guard let uid = Auth.auth().currentUser?.uid else {return}
+            fetchUser(uid)
         }
     }
     
@@ -91,6 +109,7 @@ class ConversationController:UIViewController{
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: Constants.personImage), style: .plain, target: self, action: #selector(showProfile))
         navigationItem.leftBarButtonItem?.tintColor = .white
+        
         configureTableView()
         
         view.addSubview(newMessageButton)
@@ -109,12 +128,17 @@ class ConversationController:UIViewController{
         tableView.delegate = self
         tableView.dataSource = self
     }
+    
 
 //MARK: - Selectors
     
     @objc func showProfile(){
-        print("DEBUG: Show profile")
-        logout()
+        guard let user = user else {return}
+        let controller = ProfileController(user: user)
+        controller.delegate = self
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
     }
     
     @objc func handleNewMessage(){
@@ -159,6 +183,14 @@ extension ConversationController:NewMessageControllerDelegate{
         let conversation = SingleChatController(user: user)
         navigationController?.pushViewController(conversation, animated: true)
     }
-    
-    
+}
+
+//MARK: - ProfileController Delegate
+
+extension ConversationController:ProfileControllerDelegate{
+    func handleLoggout(_ controller: ProfileController) {
+        controller.dismiss(animated: true) {
+            self.logout()
+        }
+    }
 }
