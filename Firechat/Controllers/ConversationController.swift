@@ -41,15 +41,6 @@ class ConversationController:UIViewController{
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         configureNavigationBar(withTitle: "Messages", color: .navyBlue, largeTitle: true)
-     
-       
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        checkUser()
-        configureUI()
-        fetchConversations()
     }
     
 
@@ -96,6 +87,7 @@ class ConversationController:UIViewController{
     func presentLoginScreen(){
         DispatchQueue.main.async {
             let controller = LoginController()
+            controller.delegate = self
             let nav = UINavigationController(rootViewController: controller)
             nav.modalPresentationStyle = .fullScreen
             self.present(nav, animated: true)
@@ -179,7 +171,7 @@ extension ConversationController:UITableViewDelegate{
 
 extension ConversationController:NewMessageControllerDelegate{
     func controller(_ controller: NewMessageController, wantsToChatWith user: User) {
-        controller.dismiss(animated: true)
+        dismiss(animated: true)
         let conversation = SingleChatController(user: user)
         navigationController?.pushViewController(conversation, animated: true)
     }
@@ -193,4 +185,24 @@ extension ConversationController:ProfileControllerDelegate{
             self.logout()
         }
     }
+}
+
+//MARK: - Authenticate Delegate
+
+extension ConversationController:AuthenticationDelegate{
+    func authenticateComplete(forUid uid: String) {
+        dismiss(animated: true)
+        configureUI()
+        fetchConversations()
+        guard let uid = Auth.auth().currentUser?.uid else {print("DEBUG: user is NILL"); return}
+        print("DEBUG: UID \(uid)")
+        fetchUser(uid)
+        tableView.reloadData()
+    }
+    
+    func authenticateComplete() {
+      
+    }
+    
+    
 }

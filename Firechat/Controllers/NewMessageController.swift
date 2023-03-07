@@ -17,9 +17,13 @@ class NewMessageController:UITableViewController{
     //MARK: - Properties
     
     weak var delegate:NewMessageControllerDelegate?
+    private let searchController = UISearchController(searchResultsController: nil)
     
-    var users : [User]?{
-        didSet{tableView.reloadData()}
+    var users = [User]()
+    var filteredUsers = [User]()
+    
+    private var inSearchMode : Bool {
+        return searchController.isActive && !searchController.searchBar.text!.isEmpty
     }
     
     //MARK: - Lifecycle
@@ -27,6 +31,7 @@ class NewMessageController:UITableViewController{
         super.viewDidLoad()
         view.backgroundColor = .white
         configureUI()
+        configureSearchController()
         fetchUsers()
     }
     //MARK: - API
@@ -34,6 +39,7 @@ class NewMessageController:UITableViewController{
     func fetchUsers(){
         UserService.fetchUser { users in
             self.users = users
+            self.tableView.reloadData()
         }
     }
     
@@ -41,10 +47,8 @@ class NewMessageController:UITableViewController{
     
     func configureUI(){
         configureNavigationBar(withTitle: "New Message", color: .navyBlue, largeTitle: false)
-        
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self , action: #selector(handleDismiss))
         navigationItem.rightBarButtonItem?.tintColor = .white
-        
         configureTableView()
     }
     
@@ -52,7 +56,16 @@ class NewMessageController:UITableViewController{
         tableView.tableFooterView = UIView()
         tableView.register(UserCell.self, forCellReuseIdentifier: reuseIdentifier)
         tableView.rowHeight = 80
-        
+    }
+    
+    func configureSearchController(){
+        searchController.searchBar.showsCancelButton = false
+        navigationItem.searchController = searchController
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.hidesNavigationBarDuringPresentation = false
+        searchController.searchBar.placeholder = "Search for a user"
+        definesPresentationContext = false
+        searchController.searchResultsUpdater = self
     }
     
 //MARK: - Selectors
@@ -66,12 +79,12 @@ class NewMessageController:UITableViewController{
 extension NewMessageController{
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return users?.count ?? 0
+        return inSearchMode ? filteredUsers.count : users.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! UserCell
-        cell.user = users?[indexPath.row]
+        cell.user = inSearchMode ? filteredUsers[indexPath.row] : users[indexPath.row]
         return cell
     }
 }
@@ -79,7 +92,20 @@ extension NewMessageController{
 extension NewMessageController{
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let user = users?[indexPath.row] else {return}
+        let user = inSearchMode ? filteredUsers[indexPath.row] : users[indexPath.row]
         delegate?.controller(self, wantsToChatWith: user)
     }
+}
+
+//MARK: - UISearchController - Results
+
+extension NewMessageController:UISearchResultsUpdating{
+    func updateSearchResults(for searchController: UISearchController) {
+        guard let seachResult = searchController.searchBar.text?.lowercased() else {return}
+        
+        filteredUsers = users.filter({$0.fullname.localizedStandardContains(seachResult) || $0.username.localizedStandardContains(seachResult)})
+        tableView.reloadData()
+    }
+    
+    
 }

@@ -12,9 +12,15 @@ protocol AuthenticateControllerProtocol{
     func checkAuthenticateStatus()
 }
 
+protocol AuthenticationDelegate:AnyObject{
+    func authenticateComplete(forUid uid:String)
+}
+
 class LoginController:UIViewController{
     
     //MARK: - Properties
+    
+    weak var delegate:AuthenticationDelegate?
     
     private var loginViewModel = LoginViewModel()
     
@@ -115,6 +121,7 @@ class LoginController:UIViewController{
     
     @objc func handleSignup(){
         let signupController = SignupController()
+        signupController.delegate = delegate
         navigationController?.pushViewController(signupController, animated: true)
     }
     
@@ -124,20 +131,18 @@ class LoginController:UIViewController{
         
         showHUD(true, with: "Loggin In")
         
-        AuthService.shared.logUserIn(withEmail: email, password: password) { _, error in
+        AuthService.shared.logUserIn(withEmail: email, password: password) { result, error in
             if let error = error{
                 self.showHUD(false)
                 print("DEBUG: Error log in \(error.localizedDescription)")
                 let alert = UIAlertController().createSimpleAlert(title: "Error", message: error.localizedDescription)
-                
                 self.present(alert, animated: true)
-                
                 return
-                
             }
             print("DEBUG:Sucess Login")
             self.showHUD(false)
-            self.dismiss(animated: true)
+            guard let uid = result?.user.uid else {return}
+            self.delegate?.authenticateComplete(forUid: uid)
         }
     }
     

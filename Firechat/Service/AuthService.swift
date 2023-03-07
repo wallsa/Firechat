@@ -25,7 +25,7 @@ class AuthService{
     }
     
     
-    func registerUser(withCredentials credentials:AuthCredentials, databaseCompletion:@escaping (Error?) -> (), authCompletion:@escaping (Error?) -> ()){
+    func registerUser(withCredentials credentials:AuthCredentials, databaseCompletion:@escaping (Error?) -> (), authCompletion:@escaping (AuthDataResult?, Error?) -> ()){
         let email = credentials.email
         let fullname = credentials.fullname
         let password = credentials.password
@@ -39,7 +39,7 @@ class AuthService{
         
         Auth.auth().createUser(withEmail: email, password: password) { result , error in
             if let error = error{
-                authCompletion(error)
+                authCompletion(result, error)
                 return
         }
             

@@ -11,7 +11,7 @@ import Firebase
 class SignupController:UIViewController{
     
 //MARK: - Properties
-    
+    weak var delegate:AuthenticationDelegate?
     private let imagePicker =  UIImagePickerController()
     private var image : UIImage?
     
@@ -164,16 +164,18 @@ class SignupController:UIViewController{
                 print("DEBUG: Error in database try again later... \(error.localizedDescription)")
                 return
             }
-        } authCompletion: { authError in
+        } authCompletion: { result, authError in
             if let error = authError{
                 self.showHUD(false)
                 print("DEBUG: Error in authentication try again later... \(error.localizedDescription)")
                 return
             }
             print("DEBUG: Sucess register user")
+            self.showHUD(false)
+            guard let uid = result?.user.uid else {return}
+            self.delegate?.authenticateComplete(forUid: uid)
         }
-        self.showHUD(false)
-        self.dismiss(animated: true)
+       
     }
     
     @objc func handleAlreadyHaveAccount(){

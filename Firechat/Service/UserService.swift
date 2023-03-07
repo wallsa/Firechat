@@ -12,16 +12,14 @@ class UserService{
     
     
     static func fetchUser(completion:@escaping ([User]) -> ()){
-        var users = [User]()
-        Firestore.firestore().collection("users").getDocuments { snapshot , error in
+        REF_USERS.getDocuments { snapshot , error in
             if let error = error {
                 print("DEBUG: Error fetching database")
             }
-            snapshot?.documents.forEach({ document in
-                let values = document.data()
-                let user = User(dataDictionary: values)
-                users.append(user)
-            })
+            guard var users = snapshot?.documents.map({User(dataDictionary: $0.data())}) else {return}
+            if let i = users.firstIndex(where: {$0.uid == Auth.auth().currentUser?.uid}){
+                users.remove(at: i)
+            }
             completion(users)
         }
     }

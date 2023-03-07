@@ -53,6 +53,7 @@ struct MessageService{
                 UserService.fetchUser(withUid: message.chatPartnerID) { user in
                     let conversation = Conversation(user: user, message: message)
                     conversations.append(conversation)
+                    print("DEBUG: Conversaitons \(conversations)")
                     completion(conversations)
                 }
             })
